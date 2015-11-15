@@ -1,0 +1,9 @@
+89dbbccba2cd675c716b194b3ebf571e *DESCRIPTION
+2cdd6cd94ddbbe22ce44cbc1c6e58e42 *NAMESPACE
+fd4aa8e915c1f4c16ef533f47e91d1ad *R/CALF-data.R
+fa4fd52030ffc90dd606f5f4c31e6fe1 *R/CALF-package.R
+b8bd6436af8d8938e81df94d4e30783f *R/CALF.R
+38668ccc9d3eb0f1625be1f02744f889 *data/CaseControl.rda
+7842c59d65ad17c12baf90a6513783cc *man/CALF-package.Rd
+71e9ea9b1205ec1bf056dc3a7fc73218 *man/CaseControl.Rd
+f48e49052b2fae4acec9b34ff8e5db0a *man/calf.Rd
