@@ -12,8 +12,8 @@ calf <- function(data, nMarkers){
   dNeg  <- data[ ,2:ncol(data)]
   dNeg  <- dNeg * - 1
   data  <- data.frame(data, dNeg)
-  ctrl  <- data[data$case == 0, 2:ncol(data)]
-  case  <- data[data$case == 1, 2:ncol(data)]
+  ctrl  <- data[data[,1] == 0, 2:ncol(data)]
+  case  <- data[data[,1] == 1, 2:ncol(data)]
   indexNegPos <- rep(0, (nVars*2))
   # end of setting up some initial values ----------------------------#
 
