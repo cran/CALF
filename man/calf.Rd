@@ -4,12 +4,16 @@
 \alias{calf}
 \title{calf}
 \usage{
-calf(data, nMarkers)
+calf(data, nMarkers, targetVector, margin)
 }
 \arguments{
-\item{data}{Matrix or data frame. First column must contain case/control dummy coded variable; all other columns contain relevant markers}
+\item{data}{Matrix or data frame. First column must contain case/control dummy coded variable (if targetVector = "binary"). Otherwise, first column must contain real number vector corresponding to selection variable (if targetVector = "real"). All other columns contain relevant markers.}
 
-\item{nMarkers}{Maximum number of markers to include in creation of sum}
+\item{nMarkers}{Maximum number of markers to include in creation of sum.}
+
+\item{targetVector}{Indicate "binary" for target vector with two options (e.g., case/control). Indicate "real" for target vector with real numbers.}
+
+\item{margin}{Real number from 0 to 1. Indicates the amount a potential marker must improve the target criterion (Pearson correlation or p-value) in order to add the marker.}
 }
 \value{
 A data frame containing the chosen markers and their assigned weight (-1 or 1)
@@ -22,6 +26,6 @@ rocPlot. A plot object from ggplot2 for the receiver operating curve.
 Coarse approximation linear function
 }
 \examples{
-calf(data = CaseControl, nMarkers = 6)
+calf(data = CaseControl, nMarkers = 6, targetVector = "binary")
 }
 

@@ -24,7 +24,7 @@ The process continues until the limit is reached or until no additional marker c
 \author{
 {Stephanie Lane [aut, cre],\cr
    Clark Jeffries [aut], \cr
-   Diana Perkins [aut], cr
+   Diana Perkins [aut],
 }
 Maintainer: Stephanie Lane \email{slane@unc.edu}
 }

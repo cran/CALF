@@ -4,16 +4,21 @@
 \alias{calf_randomize}
 \title{calf_randomize}
 \usage{
-calf_randomize(data, nMarkers, randomize = TRUE, times = 1)
+calf_randomize(data, nMarkers, randomize = TRUE, targetVector, times = 1,
+  margin = NULL)
 }
 \arguments{
-\item{data}{Matrix or data frame. First column must contain case/control dummy coded variable; all other columns contain relevant markers}
+\item{data}{Matrix or data frame. First column must contain case/control dummy coded variable (if targetVector = "binary"). Otherwise, first column must contain real number vector corresponding to selection variable (if targetVector = "real"). All other columns contain relevant markers.}
 
-\item{nMarkers}{Maximum number of markers to include in creation of sum}
+\item{nMarkers}{Maximum number of markers to include in creation of sum.}
 
-\item{randomize}{Logical. Indicate TRUE to randomize the case/control status of each individual. Used to compare results from true data with results from randomized data.}
+\item{randomize}{Logical. Indicate TRUE to randomize the case/control status (or real number vector) for each individual. Used to compare results from true data with results from randomized data.}
+
+\item{targetVector}{Indicate "binary" for target vector with two options (e.g., case/control). Indicate "real" for target vector with real numbers.}
 
 \item{times}{Numeric. Indicates the number of replications to run with randomization.}
+
+\item{margin}{Real number from 0 to 1. Indicates the amount a potential marker must improve the target criterion (Pearson correlation or p-value) in order to add the marker.}
 }
 \value{
 A data frame containing the chosen markers and their assigned weight (-1 or 1)
@@ -26,6 +31,6 @@ aucHist A histogram of the AUCs across replications.
 Coarse approximation linear function, randomized
 }
 \examples{
-calf_randomize(data = CaseControl, nMarkers = 6, randomize = TRUE, times = 5)
+calf_randomize(data = CaseControl, nMarkers = 6, targetVector = "binary", times = 5)
 }
 

@@ -2,7 +2,9 @@ calf_internal <- function(data,
                           nMarkers,
                           randomize  = FALSE,
                           proportion = NULL,
-                          times){
+                          times,
+                          targetVector = "binary",
+                          margin = NULL){
   # getting rid of global variable warning -------------------------- #
   x = NULL
   y = NULL
@@ -22,6 +24,7 @@ calf_internal <- function(data,
   if (randomize == TRUE) data[ ,1] <- sample(data[ ,1])
 
   if (!is.null(proportion)){
+    if (targetVector == "binary"){
     ctrlRows  <- which(data[ ,1] == 0)
     caseRows  <- which(data[ ,1] == 1)
     # calculate number of case and control to keep
@@ -31,82 +34,149 @@ calf_internal <- function(data,
     keepRows  <- c(sample(ctrlRows)[1:nCtrlKeep], sample(caseRows)[1:nCaseKeep])
     # subset original data to keep these rows
     data      <- data[keepRows, ]
+    } else {
+    nDataKeep <- round(nrow(data)*proportion, digits = 0)
+    keepRows  <- sample(1:nrow(data))[1:nDataKeep]
+    data      <- data[keepRows, ]
+    }
   }
 
+  real  <- data[ ,1]
+  realMarkers <- data[ , 2:ncol(data)]
   ctrl  <- data[data[ ,1] == 0, 2:ncol(data)]
   case  <- data[data[ ,1] == 1, 2:ncol(data)]
   indexNegPos <- rep(0, (nVars*2))
   # end of setting up some initial values ----------------------------#
 
   # initial loop to establish first optimal marker -------------------#
-  allP <- numeric()
+  allCrit <- numeric()
   for (i in 1:(nVars*2)){
+    if (targetVector == "binary"){
     caseVar    <- case[ ,i]
     ctrlVar    <- ctrl[ ,i]
-    p       <- t.test(caseVar, ctrlVar, var.equal = FALSE)$p.value
-    allP[i] <- p
+    crit       <- t.test(caseVar, ctrlVar, var.equal = FALSE)$p.value
+    } else {
+      realVar <- realMarkers[ ,i]
+      crit    <- suppressWarnings(cor(real, realVar, use = "complete.obs"))
+      crit    <- 1/crit
+    }
+    allCrit[i] <- crit
   }
+  allCrit[allCrit < 0] <- NA
+
   # end of initial loop ----------------------------------------------#
 
-  keepMarkers  <- names(case)[which.min(allP)]
-  bestP        <- min(allP, na.rm = TRUE)
-  keepIndex    <- which.min(allP)
-  # second loop to add another marker --------------------------------#
+  keepMarkers  <- names(realMarkers)[which.min(allCrit)]
+  bestCrit     <- min(allCrit, na.rm = TRUE)
+  keepIndex    <- which.min(allCrit)
 
-  allP <- numeric()
+
+  # second loop to add another marker --------------------------------#
+if (nMarkers != 1){
+  allCrit  <- numeric()
+  realPrev <- realMarkers[ ,keepIndex]
   casePrev <- case[ ,keepIndex]
   ctrlPrev <- ctrl[ ,keepIndex]
   for (i in 1:(nVars*2)){
     if (i != keepIndex){
       caseVar <- casePrev + case[ ,i]
       ctrlVar <- ctrlPrev + ctrl[ ,i]
-      p       <- t.test(caseVar, ctrlVar, var.equal = FALSE)$p.value
+      realVar <- realPrev + realMarkers[ ,i]
+      if (targetVector == "binary"){
+      crit       <- t.test(caseVar, ctrlVar, var.equal = FALSE)$p.value
+      } else {
+        crit <- suppressWarnings(cor(real, realVar, use = "complete.obs"))
+        crit <- 1/crit
+      }
     } else {
-      p <- 1
+      crit <- NA
     }
-    allP[i] <- p
+    allCrit[i] <- crit
   }
   # end of second loop ----------------------------------------------#
 
-  keepMarkers  <- append(keepMarkers, names(case)[which.min(allP)])
-  bestP        <- append(bestP, min(allP, na.rm = TRUE))
-  keepIndex    <- append(keepIndex, which.min(allP))
+  allCrit[allCrit < 0] <- NA
 
   # check if the latest p is lower than the previous p               #
-  continue <- bestP[length(bestP)] < bestP[length(bestP)-1]
+  continue <- ifelse(bestCrit[length(bestCrit)] > min(allCrit, na.rm = TRUE), TRUE, FALSE)
+
+  if (!is.null(margin)){
+    diffCrit <- 1/min(allCrit, na.rm = TRUE) - 1/bestCrit
+    continue <- ifelse(diffCrit >= margin, TRUE, FALSE)
+  }
+
+  if (continue == TRUE){
+  keepMarkers  <- append(keepMarkers, names(realMarkers)[which.min(allCrit)])
+  bestCrit     <- append(bestCrit, min(allCrit, na.rm = TRUE))
+  keepIndex    <- append(keepIndex, which.min(allCrit))
+
+  if (length(keepMarkers) == nMarkers) continue <- FALSE
+}
+
 
   # loop for third through nMarker ----------------------------------#
 
   while (continue == TRUE){
-    allP     <- numeric()
+    allCrit  <- numeric()
     casePrev <- rowSums(case[ ,keepIndex], na.rm = TRUE)
     ctrlPrev <- rowSums(ctrl[ ,keepIndex], na.rm = TRUE)
+    realPrev <- rowSums(realMarkers[ ,keepIndex], na.rm = TRUE)
     for (i in 1:(nVars*2)){
       if (!(i %in% keepIndex)){
         caseVar <- casePrev + case[ ,i]
         ctrlVar <- ctrlPrev + ctrl[ ,i]
-        p       <- t.test(caseVar, ctrlVar, var.equal = FALSE)$p.value
+        realVar <- realPrev + realMarkers[ ,i]
+        if (targetVector == "binary"){
+        crit       <- t.test(caseVar, ctrlVar, var.equal = FALSE)$p.value
+        } else {
+        crit <- suppressWarnings(cor(real, realVar, use = "complete.obs"))
+        crit <- 1/crit
+        }
       } else {
-        p <- 1
+        crit <- NA
       }
-      allP[i] <- p
+      allCrit[i] <- crit
     }
-    keepMarkers  <- append(keepMarkers, names(case)[which.min(allP)])
-    bestP        <- append(bestP, min(allP, na.rm = TRUE))
-    keepIndex    <- append(keepIndex, which.min(allP))
-    continue     <- bestP[length(bestP)] < bestP[length(bestP)-1]
+    allCrit[allCrit < 0] <- NA
+
+    continue <- ifelse(bestCrit[length(bestCrit)] > min(allCrit, na.rm = TRUE),
+                       TRUE, FALSE)
+
+    if (!is.null(margin)){
+      diffCrit <- 1/min(allCrit, na.rm = TRUE) - 1/bestCrit
+      continue <- ifelse(diffCrit >= margin, TRUE, FALSE)
+    }
+
+    if (continue == TRUE){
+    keepMarkers  <- append(keepMarkers, names(realMarkers)[which.min(allCrit)])
+    bestCrit     <- append(bestCrit, min(allCrit, na.rm = TRUE))
+    keepIndex    <- append(keepIndex, which.min(allCrit))
+    continue     <- bestCrit[length(bestCrit)] < bestCrit[length(bestCrit)-1]
+    }
     # stop the search when it hits the max number of markers
     if (length(keepMarkers) == nMarkers) continue <- FALSE
   }
+}
 
   indexNegPos[keepIndex] <- ifelse(keepIndex >= nVars, -1, 1)
   finalIndex   <- ifelse(keepIndex <= nVars, keepIndex, keepIndex - nVars)
   finalMarkers <- data.frame(names(case)[finalIndex], indexNegPos[keepIndex])
   names(finalMarkers) <- c("Marker","Weight")
 
+  if (targetVector == "real") {
+    finalBestCrit <- 1 / bestCrit[length(bestCrit)]
+  } else {
+    finalBestCrit <- bestCrit[length(bestCrit)]
+    }
   ## AUC -------------------------------------------------------------#
   # create function value for each individual
-  funcValue <- c(rowSums(case[,c(keepIndex)]), rowSums(ctrl[,c(keepIndex)]))
+  # only for binary target?
+  if (targetVector == "binary"){
+    if (nMarkers != 1 & length(keepIndex) != 1){
+  funcValue   <- c(rowSums(case[,c(keepIndex)]), rowSums(ctrl[,c(keepIndex)]))
+    } else {
+      funcValue   <- c(case[,c(keepIndex)], ctrl[,c(keepIndex)])
+    }
   # rank individual function values
   ranks       <- rank(funcValue)
   seqCaseCtrl <- c(rep(1, nrow(case)), rep(0, nrow(ctrl)))
@@ -134,6 +204,16 @@ calf_internal <- function(data,
     }
   }
 
+  # if the plot prints upside-down, switch values for
+  # x and y
+  n <- round(length(all$refy)/2, digits = 0)
+  if (all$refy[n] > all$y[n]){
+    all$a <- all$x
+    all$b <- all$y
+    all$x <- all$b
+    all$y <- all$a
+  }
+
   rocPlot <- ggplot(all, aes(x = x, y = y)) +
     geom_line(size = 1) +
     geom_line(aes(x = refx, y = refy, colour = "red"), size = 1.5) +
@@ -149,11 +229,17 @@ calf_internal <- function(data,
   ctrlFunc  <- sum(ranks[(nrow(case)+1):length(ranks)]) - nrow(ctrl)*(nrow(ctrl)+1)/2
   # compute AUC
   auc       <- round(max(ctrlFunc, caseFunc)/(caseFunc + ctrlFunc), digits = 4)
+  } else {
+    auc     <- NULL
+    rocPlot <- NULL
+  }
   est       <- list(selection  = finalMarkers,
                     auc        = auc,
                     randomize  = randomize,
                     proportion = proportion,
-                    rocPlot    = rocPlot)
+                    targetVec  = targetVector,
+                    rocPlot    = rocPlot,
+                    finalBest  = finalBestCrit)
   class(est) <- "calf"
   return(est)
 }

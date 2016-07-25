@@ -4,10 +4,10 @@
 #' @description Forward selection linear regression greedy algorithm.
 #' @author {Stephanie Lane [aut, cre],\cr
 #'    Clark Jeffries [aut], \cr
-#'    Diana Perkins [aut], cr
+#'    Diana Perkins [aut],
 #' }
 #' Maintainer: Stephanie Lane \email{slane@@unc.edu}
-#' @importFrom stats t.test
+#' @importFrom stats t.test cor
 #' @import ggplot2
 #' @keywords calf
 #' @details The Coarse Approximation Linear Function (CALF) algorithm is a type of forward selection

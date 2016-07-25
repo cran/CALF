@@ -4,16 +4,21 @@
 \alias{calf_subset}
 \title{calf_subset}
 \usage{
-calf_subset(data, nMarkers, proportion = 0.8, times = 1)
+calf_subset(data, nMarkers, proportion = 0.8, targetVector, times = 1,
+  margin = NULL)
 }
 \arguments{
-\item{data}{Matrix or data frame. First column must contain case/control dummy coded variable; all other columns contain relevant markers}
+\item{data}{Matrix or data frame. First column must contain case/control dummy coded variable (if targetVector = "binary"). Otherwise, first column must contain real number vector corresponding to selection variable (if targetVector = "real"). All other columns contain relevant markers.}
 
-\item{nMarkers}{Maximum number of markers to include in creation of sum}
+\item{nMarkers}{Maximum number of markers to include in creation of sum.}
 
-\item{proportion}{Numeric. A value (where 0 < proportion <= 1) indicating the proportion of cases and controls to use in analysis. Used to evaluate robustness of solution. Defaults to 0.8.}
+\item{proportion}{Numeric. A value (where 0 < proportion <= 1) indicating the proportion of cases and controls to use in analysis (if targetVector = "binary"). If targetVector = "real", this is just a proportion of the full sample. Used to evaluate robustness of solution. Defaults to 0.8.}
+
+\item{targetVector}{Indicate "binary" for target vector with two options (e.g., case/control). Indicate "real" for target vector with real numbers.}
 
 \item{times}{Numeric. Indicates the number of replications to run with randomization.}
+
+\item{margin}{Real number from 0 to 1. Indicates the amount a potential marker must improve the target criterion (Pearson correlation or p-value) in order to add the marker.}
 }
 \value{
 A data frame containing the chosen markers and their assigned weight (-1 or 1)
@@ -26,6 +31,6 @@ aucHist A histogram of the AUCs across replications.
 Coarse approximation linear function, randomized
 }
 \examples{
-calf_subset(data = CaseControl, nMarkers = 6, times = 5)
+calf_subset(data = CaseControl, nMarkers = 6, targetVector = "binary", times = 5)
 }
 
