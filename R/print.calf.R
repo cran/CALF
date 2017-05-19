@@ -3,10 +3,10 @@
 print.calf <- function(x, ...){
   if (x$randomize == TRUE) cat("Randomized Output:", "\n", "\n")
   if (!is.null(x$proportion)) cat("Proportion of Data:", x$proportion, "\n", "\n")
-  print.data.frame(x$selection, row.names = FALSE)
+  print.data.frame(x$selection, row.names = FALSE, check.names = FALSE)
   if (x$targetVec == "binary") {
     cat("\nAUC:", x$auc)
-    cat("\nFinal p-value:", x$finalBest)
+   if (x$optimize == "pval") cat("\nFinal p-value:", x$finalBest)
   } else {
     cat("\nFinal Correlation:", x$finalBest)
   }
@@ -17,19 +17,22 @@ print.calf <- function(x, ...){
 print.calf_randomize <- function(x, ...){
   if (x$times == 1) {
     cat("Randomized Output Across", x$times, "Replication:", "\n", "\n")
-    print.data.frame(x$selection, row.names = FALSE)
+    print.data.frame(x$selection, row.names = FALSE, check.names = FALSE)
     if (x$targetVec == "binary") {
       cat("\nAUC:", x$auc)
-      cat("\nFinal p-value:", x$finalBest)
+      if (x$optimize == "pval") cat("\nFinal p-value:", x$finalBest)
     } else {
       cat("\nFinal Correlation:", x$finalBest)
     }
   } else {
     cat("Randomized Output Across", x$times, "Replications:", "\n", "\n")
-    print.data.frame(x$multiple, row.names = FALSE)
+    print.data.frame(x$multiple, row.names = FALSE, check.names = FALSE)
     if (x$targetVec == "binary"){
       cat("\n", "\n")
       print.data.frame(x$auc, row.names = F)
+    } else {
+      cat("\nFinal Correlations:", "\n",
+          round(x$finalBest, digits = 4))
     }
   }
 }
@@ -40,7 +43,7 @@ print.calf_randomize <- function(x, ...){
 print.calf_subset <- function(x, ...){
   if (x$times == 1) {
     cat("Proportion =", x$proportion, "Output Across", x$times, "Replication:", "\n", "\n")
-    print.data.frame(x$selection, row.names = FALSE)
+    print.data.frame(x$selection, row.names = FALSE, check.names = FALSE)
     if (x$targetVec == "binary") {
       cat("\nAUC:", x$auc)
       cat("\nFinal p-value:", x$finalBest)
@@ -52,7 +55,7 @@ print.calf_subset <- function(x, ...){
     print.data.frame(x$multiple, row.names = FALSE)
     if (x$targetVec == "binary"){
       cat("\n", "\n")
-      print.data.frame(x$auc, row.names = F)
+      print.data.frame(x$auc, row.names = F, check.names = FALSE)
     }
   }
 }

@@ -12,4 +12,3 @@ CaseControl
 This data contains 136 marker variables for 68 individuals who are distinguished as case/control.
 }
 \keyword{datasets}
-

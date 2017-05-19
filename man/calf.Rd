@@ -4,7 +4,8 @@
 \alias{calf}
 \title{calf}
 \usage{
-calf(data, nMarkers, targetVector, margin)
+calf(data, nMarkers, targetVector, margin, optimize = "pval",
+  verbose = FALSE)
 }
 \arguments{
 \item{data}{Matrix or data frame. First column must contain case/control dummy coded variable (if targetVector = "binary"). Otherwise, first column must contain real number vector corresponding to selection variable (if targetVector = "real"). All other columns contain relevant markers.}
@@ -14,6 +15,10 @@ calf(data, nMarkers, targetVector, margin)
 \item{targetVector}{Indicate "binary" for target vector with two options (e.g., case/control). Indicate "real" for target vector with real numbers.}
 
 \item{margin}{Real number from 0 to 1. Indicates the amount a potential marker must improve the target criterion (Pearson correlation or p-value) in order to add the marker.}
+
+\item{optimize}{Criteria to optimize if targetVector = "binary." Indicate "pval" to optimize the p-value corresponding to the t-test distinguishing case and control. Indicate "auc" to optimize the AUC.}
+
+\item{verbose}{Logical. Indicate TRUE to print activity at each iteration to console. Defaults to FALSE.}
 }
 \value{
 A data frame containing the chosen markers and their assigned weight (-1 or 1)
@@ -28,4 +33,3 @@ Coarse approximation linear function
 \examples{
 calf(data = CaseControl, nMarkers = 6, targetVector = "binary")
 }
-
