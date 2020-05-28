@@ -60,3 +60,25 @@ print.calf_subset <- function(x, ...){
   }
 }
 
+
+
+
+#'@method print calf_exact_binary_subset
+#'@export
+print.calf_exact_binary_subset <- function(x, ...){
+  if (x$times == 1) {
+    cat("Proportion =", x$proportion, "Output Across", x$times, "Replication:", "\n", "\n")
+    print.data.frame(x$selection, row.names = FALSE, check.names = FALSE)
+    
+    cat("\nAUC:", x$auc)
+    cat("\nFinal p-value:", x$finalBest)
+    
+  } else {
+    cat("Proportion =", x$proportion, "Output Across", x$times, "Replications:", "\n", "\n")
+    print.data.frame(x$multiple, row.names = FALSE)
+    
+    cat("\n", "\n")
+    print.data.frame(x$auc, row.names = F, check.names = FALSE)
+    
+  }
+}

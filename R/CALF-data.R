@@ -6,6 +6,6 @@
 #' @docType data
 #' @keywords datasets
 #' @name CaseControl
-#' @usage CaseControl
+#' @usage data(CaseControl)
 #' @format A data frame with 136 marker variables and 68 individuals.
-NULL
+"CaseControl"

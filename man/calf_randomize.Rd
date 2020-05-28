@@ -4,21 +4,23 @@
 \alias{calf_randomize}
 \title{calf_randomize}
 \usage{
-calf_randomize(data, nMarkers, randomize = TRUE, targetVector, times = 1,
-  margin = NULL, optimize = "pval", verbose = FALSE)
+calf_randomize(
+  data,
+  nMarkers,
+  targetVector,
+  times = 1,
+  optimize = "pval",
+  verbose = FALSE
+)
 }
 \arguments{
-\item{data}{Matrix or data frame. First column must contain case/control dummy coded variable (if targetVector = "binary"). Otherwise, first column must contain real number vector corresponding to selection variable (if targetVector = "real"). All other columns contain relevant markers.}
+\item{data}{Matrix or data frame. Must be binary data such that the first column must contain case/control dummy coded variable, as function is only approprite for binary data.}
 
 \item{nMarkers}{Maximum number of markers to include in creation of sum.}
 
-\item{randomize}{Logical. Indicate TRUE to randomize the case/control status (or real number vector) for each individual. Used to compare results from true data with results from randomized data.}
-
-\item{targetVector}{Indicate "binary" for target vector with two options (e.g., case/control). Indicate "real" for target vector with real numbers.}
+\item{targetVector}{Indicate "binary" for target vector with two options (e.g., case/control). Indicate "nonbinary" for target vector with real numbers.}
 
 \item{times}{Numeric. Indicates the number of replications to run with randomization.}
-
-\item{margin}{Real number from 0 to 1. Indicates the amount a potential marker must improve the target criterion (Pearson correlation or p-value) in order to add the marker.}
 
 \item{optimize}{Criteria to optimize if targetVector = "binary." Indicate "pval" to optimize the p-value corresponding to the t-test distinguishing case and control. Indicate "auc" to optimize the AUC.}
 
@@ -27,12 +29,12 @@ calf_randomize(data, nMarkers, randomize = TRUE, targetVector, times = 1,
 \value{
 A data frame containing the chosen markers and their assigned weight (-1 or 1)
 
-The AUC value for the classification
+The optimal AUC, pval, or correlation for the classification.
 
-aucHist A histogram of the AUCs across replications.
+aucHist A histogram of the AUCs across replications, if applicable.
 }
 \description{
-Coarse approximation linear function, randomized
+Randomly selects from binary input provided to data parameter and runs Coarse Approximation Linear Function.
 }
 \examples{
 calf_randomize(data = CaseControl, nMarkers = 6, targetVector = "binary", times = 5)
