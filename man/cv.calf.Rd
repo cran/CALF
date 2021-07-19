@@ -37,6 +37,6 @@ Performs cross-validation using CALF data input
 }
 \examples{
 \dontrun{
-cv.calf(data = CaseControl, limit = 5, times = 100, targetVector = 'binary', optimize = 'pval')
+cv.calf(data = CaseControl, limit = 5, times = 100, targetVector = 'binary')
 }
 }
