@@ -131,23 +131,49 @@ calf_internal <- function(data,
     casePrev <- case[ ,keepIndex]
     ctrlPrev <- ctrl[ ,keepIndex]
     for (i in 1:(nVars*2)){
-      if (i != keepIndex){
-        caseVar <- casePrev + case[ ,i]
-        ctrlVar <- ctrlPrev + ctrl[ ,i]
-        realVar <- realPrev + realMarkers[ ,i]
-        if (targetVector == "binary"){
-          if (optimize == "pval"){
-            crit       <- t.test(caseVar, ctrlVar, var.equal = FALSE)$p.value
-          } else if (optimize == "auc"){
-            crit <- compute.auc(caseVar, ctrlVar)
+      # Check the indicies and complement for the postive values, else the negative ones
+      if( i >= 1 && i <= nVars ) {
+        # ensure an index or its complement is not being used if already chosen 
+        if (i != keepIndex && (nVars+i) != keepIndex){
+          caseVar <- casePrev + case[ ,i]
+          ctrlVar <- ctrlPrev + ctrl[ ,i]
+          realVar <- realPrev + realMarkers[ ,i]
+          if (targetVector == "binary"){
+            if (optimize == "pval"){
+              crit       <- t.test(caseVar, ctrlVar, var.equal = FALSE)$p.value
+            } else if (optimize == "auc"){
+              crit <- compute.auc(caseVar, ctrlVar)
+              crit <- 1/crit
+            }
+          } else {
+            crit <- suppressWarnings(cor(real, realVar, use = "complete.obs"))
             crit <- 1/crit
           }
         } else {
-          crit <- suppressWarnings(cor(real, realVar, use = "complete.obs"))
-          crit <- 1/crit
+          crit <- NA
+        }
+      } else if( i >= (nVars+1) && i <= 2*nVars) {
+        # ensure an index or its complement is not being used if already chosen 
+        if (i != keepIndex && (i-nVars) != keepIndex){
+          caseVar <- casePrev + case[ ,i]
+          ctrlVar <- ctrlPrev + ctrl[ ,i]
+          realVar <- realPrev + realMarkers[ ,i]
+          if (targetVector == "binary"){
+            if (optimize == "pval"){
+              crit       <- t.test(caseVar, ctrlVar, var.equal = FALSE)$p.value
+            } else if (optimize == "auc"){
+              crit <- compute.auc(caseVar, ctrlVar)
+              crit <- 1/crit
+            }
+          } else {
+            crit <- suppressWarnings(cor(real, realVar, use = "complete.obs"))
+            crit <- 1/crit
+          }
+        } else {
+          crit <- NA
         }
       } else {
-        crit <- NA
+        crit <- NA  # Should really never get here
       }
       allCrit[i] <- crit
     }
@@ -193,24 +219,48 @@ calf_internal <- function(data,
       ctrlPrev <- rowSums(ctrl[ ,keepIndex], na.rm = TRUE)
       realPrev <- rowSums(realMarkers[ ,keepIndex], na.rm = TRUE)
       for (i in 1:(nVars*2)){
-        if (!(i %in% keepIndex)){
-          caseVar <- casePrev + case[ ,i]
-          ctrlVar <- ctrlPrev + ctrl[ ,i]
-          realVar <- realPrev + realMarkers[ ,i]
-          if (targetVector == "binary"){
-            if (optimize == "pval"){
-              crit       <- t.test(caseVar, ctrlVar, var.equal = FALSE)$p.value
-            } else if (optimize == "auc"){
-              crit <- compute.auc(caseVar, ctrlVar)
+        if( i >= 1 && i <= nVars ) {
+          if ( !(i %in% keepIndex) && !((nVars+i) %in% keepIndex) ){
+            caseVar <- casePrev + case[ ,i]
+            ctrlVar <- ctrlPrev + ctrl[ ,i]
+            realVar <- realPrev + realMarkers[ ,i]
+            if (targetVector == "binary"){
+              if (optimize == "pval"){
+                crit       <- t.test(caseVar, ctrlVar, var.equal = FALSE)$p.value
+              } else if (optimize == "auc"){
+                crit <- compute.auc(caseVar, ctrlVar)
+                crit <- 1/crit
+              }
+            } else {
+              crit <- suppressWarnings(cor(real, realVar, use = "complete.obs"))
               crit <- 1/crit
             }
           } else {
-            crit <- suppressWarnings(cor(real, realVar, use = "complete.obs"))
-            crit <- 1/crit
+            crit <- NA
+          }
+        } else if( i >= (nVars+1) && i <= 2*nVars) {
+          if ( !(i %in% keepIndex) && !((i-nVars) %in% keepIndex) ){
+            caseVar <- casePrev + case[ ,i]
+            ctrlVar <- ctrlPrev + ctrl[ ,i]
+            realVar <- realPrev + realMarkers[ ,i]
+            if (targetVector == "binary"){
+              if (optimize == "pval"){
+                crit       <- t.test(caseVar, ctrlVar, var.equal = FALSE)$p.value
+              } else if (optimize == "auc"){
+                crit <- compute.auc(caseVar, ctrlVar)
+                crit <- 1/crit
+              }
+            } else {
+              crit <- suppressWarnings(cor(real, realVar, use = "complete.obs"))
+              crit <- 1/crit
+            }
+          } else {
+            crit <- NA
           }
         } else {
-          crit <- NA
+          crit <- NA  # Should really never get here
         }
+        
         allCrit[i] <- crit
       }
       allCrit[allCrit < 0] <- NA

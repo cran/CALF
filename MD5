@@ -1,8 +1,8 @@
-2f988fc21915752a2239ae4f87dd00f3 *DESCRIPTION
+1b2ab505fd04dbfc3aa8b439c8962c37 *DESCRIPTION
 cd88d8ce7070e54abe66c45a68dcb70e *NAMESPACE
 94648b6e01384f5ec2922101620733ff *R/CALF-data.R
 2454c84b26317f08eefad878eec1ed40 *R/CALF-package.R
-978d8436caffed02ce061202b7ba993d *R/calf_internal.R
+441bdfab62fded66fbec8d5cbf8368b1 *R/calf_internal.R
 b0ecc5453fc1143af17268f0d1fb3280 *R/calf_wrappers.R
 38201a180ad0b7f9bf7aaefb7e82931a *R/print.calf.R
 38668ccc9d3eb0f1625be1f02744f889 *data/CaseControl.rda
